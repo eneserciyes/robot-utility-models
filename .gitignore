@@ -15,6 +15,7 @@ robot_images/
 temp/
 robot_rt/
 visualizations/
+data
 
 wandb/
 r3d_files/
