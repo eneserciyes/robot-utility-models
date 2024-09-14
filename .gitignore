@@ -1,6 +1,6 @@
 #add notebooks to gitignore
 
-*.ipynb
+# *.ipynb
 *.out
 *.err
 *.sbatch
@@ -46,7 +46,7 @@ run_rt.py
 wandb
 checkpoints
 multirun
-notebooks
+# notebooks
 
 *.sbatch
 wrapper.sh
