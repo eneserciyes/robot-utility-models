@@ -62,7 +62,7 @@ def get_model_weight_pth(task_name, policy_class):
         url = f'https://drive.google.com/uc?id={gdrive_id}'
         output_path = f"{task_dir}/checkpoint.pt"
         gdown.download(url, output_path, quiet=False)
-    
+
     return f"{task_dir}/checkpoint.pt"
 
 def _init_model_loss(cfg):
@@ -84,13 +84,13 @@ def _init_model_loss(cfg):
     loss_fn = hydra.utils.instantiate(cfg.loss_fn, model=model)
     loss_fn.load_state_dict(checkpoint["loss_fn"])
     loss_fn = loss_fn.to(cfg.device)
-    
+
     model_parameters = sum(p.numel() for p in model.parameters() if p.requires_grad)
     loss_parameters = sum(p.numel() for p in loss_fn.parameters() if p.requires_grad)
     # print model params in millions with %.2f
     print(f"Model parameters: {model_parameters / 1e6:.2f}M")
     print(f"Loss parameters: {loss_parameters / 1e6:.2f}M")
-        
+
     policy = WrapperPolicy(model, loss_fn)
     return policy
 
@@ -104,7 +104,7 @@ def run(cfg: OmegaConf, init_model=_init_model_loss):
             test_dataset,
             cfg["device"],
             cfg["image_buffer_size"],
-            goal_conditional=cfg["goal_conditional"],
+            goal_conditional=False# cfg["goal_conditional"],
         )
 
     else:

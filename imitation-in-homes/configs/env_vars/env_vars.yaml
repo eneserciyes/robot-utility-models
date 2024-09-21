@@ -1,20 +1,20 @@
 project_root: /home/enes/ws/robot-utility-models/imitation-in-homes # path to the imitation-in-homes folder
 
-data_root: 
-    train: /path/to/train_dataset
-    val: /path/to/test_dataset
+data_root:
+    train: /home/enes/ws/robot-utility-models/data_extracted # /home/robot_lab/data/bag_pick_up_extracted # path to the train data
+    val: /home/enes/ws/robot-utility-models/data_extracted # /home/robot_lab/data/bag_pick_up_extracted
 
 # path included in r3d_files.txt of dataset (may be the same as data_root if data has not been moved nor transferred across machines)
-data_original_root: 
-    train: /path/to/path_in_train_r3d_files 
-    val: /path/to/path_in_val_r3d_files
+data_original_root:
+    train: /home/enes/ws/robot-utility-models/data_extracted # /home/robot_lab/data/bag_pick_up_extracted # path to the train data
+    val: /home/enes/ws/robot-utility-models/data_extracted # /home/robot_lab/data/bag_pick_up_extracted
 
 wandb:
     entity: eneserciyes  # wandb username
 
 finetune_task_data_root:
-    train: /home/robot_lab/data/bag_pick_up_extracted # path to the train data
-    val: /home/robot_lab/data/bag_pick_up_extracted # path to the validation data
+    train: /home/enes/ws/robot-utility-models/data_extracted # /home/robot_lab/data/bag_pick_up_extracted # path to the train data
+    val: /home/enes/ws/robot-utility-models/data_extracted # /home/robot_lab/data/bag_pick_up_extracted # path to the validation data
 
 finetune_task_data_original_root:
     train:

@@ -4,6 +4,7 @@ defaults:
   - env_vars: env_vars
   - model: resnet_dobb-e
   - loss_fn: vqbet_loss
+  - dataset: vqbet_train
   - _self_
 
 image_save_dir: ${env_vars.project_root}/robot_images
@@ -11,6 +12,8 @@ image_buffer_size: 3
 device: cpu
 
 task: door_opening
+include_task: ${task}
+control_timeskip: 7
 
 vqvae_load_dir: null
 vqvae_n_embed: 16

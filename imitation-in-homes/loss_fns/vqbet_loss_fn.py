@@ -180,5 +180,7 @@ class VQBeTLossFn(AbstractLossFn):
                 dim=2,
             )
             a_hat[:, :, -1] = 1.0
+
+        a_hat = einops.rearrange(a_hat, "(N T) O C -> N (T O) C", N=adapted_obs.shape[0])
         # Finally, return the final action prediction only.
-        return a_hat[-1, -1, :], {}
+        return a_hat[:, -1, :], {}

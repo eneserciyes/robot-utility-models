@@ -83,6 +83,8 @@ def visualize_trajectory(
 
     i = 0
     done_visualizing = 0
+    model.eval()
+
     while (done_visualizing < n_visualized_trajectories) and (i < len(test_dataset)):
         if goal_conditional:
             (input_images, terminate), goals, *_, gt_actions = test_dataset[i]
