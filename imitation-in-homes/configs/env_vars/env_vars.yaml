@@ -1,4 +1,4 @@
-project_root: /path/to/robot-utility-models/imitation-in-homes # path to the imitation-in-homes folder
+project_root: /home/enes/ws/robot-utility-models/imitation-in-homes # path to the imitation-in-homes folder
 
 data_root: 
     train: /path/to/train_dataset
@@ -10,4 +10,12 @@ data_original_root:
     val: /path/to/path_in_val_r3d_files
 
 wandb:
-    entity: username  # wandb username
+    entity: eneserciyes  # wandb username
+
+finetune_task_data_root:
+    train: /home/robot_lab/data/bag_pick_up_extracted # path to the train data
+    val: /home/robot_lab/data/bag_pick_up_extracted # path to the validation data
+
+finetune_task_data_original_root:
+    train:
+    val:

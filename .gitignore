@@ -1,6 +1,6 @@
 #add notebooks to gitignore
 
-*.ipynb
+# *.ipynb
 *.out
 *.err
 *.sbatch
@@ -15,6 +15,9 @@ robot_images/
 temp/
 robot_rt/
 visualizations/
+notebooks/
+data
+data_extracted/
 
 wandb/
 r3d_files/
@@ -45,7 +48,7 @@ run_rt.py
 wandb
 checkpoints
 multirun
-notebooks
+# notebooks
 
 *.sbatch
 wrapper.sh
