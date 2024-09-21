@@ -12,8 +12,8 @@ CLIENT_SECRET_JSON="client_secret.json"
 
 TASK_NAME="tissue_pick_up"
 HOME="home1" # used for folder naming purposes
-ROOT_FOLDER="../data" # directory to which data will be downloaded
-EXPORT_FOLDER="../data_extracted" # directory to which data will be extracted
+ROOT_FOLDER="/home/enes/ws/robot-utility-models/data" # directory to which data will be downloaded
+EXPORT_FOLDER="/home/enes/ws/robot-utility-models/data_extracted" # directory to which data will be extracted
 ENV_NO=1 # used to name environment within "home" folder
 GRIPPER_MODEL_PATH="gripper_model_new.pth"
 
