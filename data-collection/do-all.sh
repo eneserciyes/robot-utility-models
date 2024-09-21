@@ -4,16 +4,16 @@ set -e
 # Google drive folder ID to download the data from.
 # If you don't want to use Google drive, then set the next variable to empty and
 # just place the zipped data in the $ROOT_FOLDER according to README.
-GDRIVE_FOLDER_ID="1P1jKmmklXwB0js50OzSxiyCAJr"
+GDRIVE_FOLDER_ID=""
 # Path to the client secret json file. If you would like to use google drive but don't have
-# the API keys yet, follow the instructions here: https://stackoverflow.com/a/72076913 
+# the API keys yet, follow the instructions here: https://stackoverflow.com/a/72076913
 # to generate it from Google developer console.
 CLIENT_SECRET_JSON="client_secret.json"
 
-TASK_NAME="task_name"
-HOME="my_home" # used for folder naming purposes
-ROOT_FOLDER="data" # directory to which data will be downloaded
-EXPORT_FOLDER="data_extracted" # directory to which data will be extracted
+TASK_NAME="tissue_pick_up"
+HOME="home1" # used for folder naming purposes
+ROOT_FOLDER="../data" # directory to which data will be downloaded
+EXPORT_FOLDER="../data_extracted" # directory to which data will be extracted
 ENV_NO=1 # used to name environment within "home" folder
 GRIPPER_MODEL_PATH="gripper_model_new.pth"
 

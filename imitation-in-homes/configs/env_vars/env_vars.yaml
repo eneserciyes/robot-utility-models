@@ -4,8 +4,8 @@ wandb:
     entity: eneserciyes  # wandb username
 
 finetune_task_data_root:
-    train: /home/enes/data/robot-utility-model-data/train # path to the train data
-    val: /home/enes/data/robot-utility-model-data/val # path to the validation data
+    train: /home/robot_lab/data/bag_pick_up_extracted # path to the train data
+    val: /home/robot_lab/data/bag_pick_up_extracted # path to the validation data
 
 finetune_task_data_original_root:
     train:
