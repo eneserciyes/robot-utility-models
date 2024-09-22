@@ -15,7 +15,7 @@ robot_images/
 temp/
 robot_rt/
 visualizations/
-notebooks/
+# notebooks/
 data
 data_extracted/
 
@@ -43,6 +43,7 @@ configs/accelerate
 
 *.png
 *.mp4
+*.ply
 
 run_rt.py
 wandb
