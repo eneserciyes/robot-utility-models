@@ -9,6 +9,7 @@ from scipy.spatial.transform import Rotation as R
 import math
 import time
 import random
+import pickle
 import os
 from ..utils import kdl_tree_from_urdf_model
 
@@ -26,6 +27,33 @@ STRETCH_GRIPPER_TIGHT = -35
 STICKY_GRIPPER = False
 CLOSING_THRESHOLD = 0.85
 REOPENING_THRESHOLD = 0.8
+
+def frame_to_numpy_matrix(frame):
+    # Extract rotation matrix
+    rotation = frame.M
+    rot_matrix = np.array([
+        [rotation[0, 0], rotation[0, 1], rotation[0, 2]],
+        [rotation[1, 0], rotation[1, 1], rotation[1, 2]],
+        [rotation[2, 0], rotation[2, 1], rotation[2, 2]]
+    ])
+
+    # Extract translation vector
+    translation = frame.p
+    trans_vector = np.array([translation[0], translation[1], translation[2]])
+
+    # Construct the 4x4 transformation matrix
+    transformation_matrix = np.eye(4)
+    transformation_matrix[:3, :3] = rot_matrix
+    transformation_matrix[:3, 3] = trans_vector
+
+    return transformation_matrix
+
+def jntarray_to_numpy(jnt_array):
+    num_joints = jnt_array.rows()
+    np_array = np.zeros(num_joints)
+    for i in range(num_joints):
+        np_array[i] = jnt_array[i]
+    return np_array
 
 class HelloRobot:
     def __init__(
@@ -80,10 +108,14 @@ class HelloRobot:
         self.base_x = self.robot.base.status["x"]
         self.base_y = self.robot.base.status["y"]
 
+        print("Base x, y:", self.base_x, self.base_y)
+
         # time.sleep(2) # TODO; check if can be removed
 
         # Constraining the robots movement
         self.clamp = lambda n, minn, maxn: max(min(maxn, n), minn)
+
+        self.all_actions = []
 
         # Joint dictionary for Kinematics
         self.setup_kdl()
@@ -115,7 +147,7 @@ class HelloRobot:
             else gripper_pos * (self.STRETCH_GRIPPER_MAX - self.STRETCH_GRIPPER_MIN)
             + self.STRETCH_GRIPPER_MIN
         )
-        
+
         self.robot.end_of_arm.move_to("wrist_yaw", wrist_yaw)
         PITCH_VAL = wrist_pitch
         self.robot.end_of_arm.move_to("wrist_pitch", PITCH_VAL)
@@ -196,7 +228,7 @@ class HelloRobot:
             self.GRIPPER_THRESHOLD_POST_GRASP_LIST = gripper_threshold_post_grasp_list
         else:
             self.GRIPPER_THRESHOLD_POST_GRASP_LIST = [
-                self.CLOSING_THRESHOLD*self.STRETCH_GRIPPER_MAX, 
+                self.CLOSING_THRESHOLD*self.STRETCH_GRIPPER_MAX,
                 self.REOPENING_THRESHOLD*self.STRETCH_GRIPPER_MAX
             ]
 
@@ -288,6 +320,14 @@ class HelloRobot:
         # self.base_motion += joints['joint_fake']-self.joints['joint_fake']
         # print('base motion:', self.base_motion)
 
+        base_trans = joints["joint_fake"] - self.joints["joint_fake"]
+        arm_pos = joints["joint_arm_l3"] + joints["joint_arm_l2"] + joints["joint_arm_l1"] + joints["joint_arm_l0"]
+        lift_pos = joints["joint_lift"]
+        wrist_yaw = self.clamp(joints["joint_wrist_yaw"], -0.4, 1.7)
+        wrist_pitch = self.clamp(joints["joint_wrist_pitch"], -1.5, 0.2)
+        wrist_roll = self.clamp(joints["joint_wrist_roll"], -1.57, 1.57)
+        joint_action = [base_trans, lift_pos, arm_pos, wrist_yaw, wrist_pitch, wrist_roll]
+
         self.robot.base.translate_by(
             joints["joint_fake"] - self.joints["joint_fake"], 5
         )
@@ -319,38 +359,44 @@ class HelloRobot:
             gripper[0] * (self.STRETCH_GRIPPER_MAX - self.STRETCH_GRIPPER_MIN)
             + self.STRETCH_GRIPPER_MIN
         )
-
         print("Gripper state after update:", self.CURRENT_STATE)
         self.robot.end_of_arm.move_to("stretch_gripper", self.CURRENT_STATE)
         # code below is to map values below certain threshold to negative values to close the gripper much tighter
-        print("Gripper state after update:", self.GRIPPER_THRESHOLD)
+        # print("Gripper threshold:", self.get_threshold())
+        # print("sticky:", self._sticky_gripper and self._has_gripped)
 
         if self.CURRENT_STATE < self.get_threshold() or (self._sticky_gripper and self._has_gripped):
+            # print("Below threshold...")
             self.gripper = self.STRETCH_GRIPPER_TIGHT[self.threshold_count//2]
+            # print("Gripper command:", self.gripper)
             self.robot.end_of_arm.move_to("stretch_gripper", self.gripper)
             if not self._has_gripped:
                 self.gripper_change = 1
                 self.threshold_count += 1
             self._has_gripped = True
         else:
+            # print("Above threshold...")
             self.gripper = self.STRETCH_GRIPPER_MAX
+            # print("Gripper command:", self.gripper)
             self.robot.end_of_arm.move_to('stretch_gripper', self.gripper)
             if self._has_gripped:
                 self.gripper_change = 1
                 self.threshold_count += 1
             self._has_gripped = False
         self.robot.push_command()
-        
+
+        print(f"Sending robot {joint_action=}, {self.gripper=}")
         while abs(self.getGripperState() - self.gripper) > 10 and self.gripper_change:
             print(self.getGripperState(), self.gripper)
             prev_diff = self.getGripperState() - self.gripper
-            
+
             time.sleep(0.05)
             curr_diff = self.getGripperState() - self.gripper
             if curr_diff == prev_diff:
                 self.robot.end_of_arm.move_to('stretch_gripper', self.gripper)
                 self.robot.push_command()
-        
+
+        # print(self.getGripperState(), self.gripper)
         self.gripper_change = 0
         if self.threshold_count == 2:
             self.home()
@@ -373,13 +419,13 @@ class HelloRobot:
         lift_pos, base_pos, arm_pos, roll_pos, pitch_pos, yaw_pos, gripper_pos = self.getJointPos() # Get current state of robot joints
 
         delta_translation = np.array(
-            [ik_joints["joint_lift"]-lift_pos, 
-            # ik_joints["joint_fake"]-base_pos, 
+            [ik_joints["joint_lift"]-lift_pos,
+            # ik_joints["joint_fake"]-base_pos,
             max(ik_joints["joint_arm_l0"]*4, 0)-arm_pos]
         )
 
         delta_rotation = np.array(
-        	[ik_joints["joint_wrist_roll"]-roll_pos, 
+        	[ik_joints["joint_wrist_roll"]-roll_pos,
 	        ik_joints["joint_wrist_pitch"]-pitch_pos,
 	        ik_joints["joint_wrist_yaw"]-yaw_pos]
         )
@@ -394,6 +440,8 @@ class HelloRobot:
         return translation_delta_norm < 0.01
 
     def move_to_pose(self, translation_tensor, rotational_tensor, gripper):
+        save_data = {}
+
         if self._params_changed:
             print("WARNING!!! Params changed recently, please home before you move the robot.")
             return
@@ -404,8 +452,15 @@ class HelloRobot:
         ]
         rotation = rotational_tensor
 
+        print(f"Commanded action: {translation=}, {rotation=}, {gripper=}")
+        save_data["translation"] = translation
+        save_data["rotation"] = rotation
+        save_data["gripper"] = gripper
+
         # move logic
         self.updateJoints()
+
+        save_data["joints"] = self.joints.copy()
 
         for joint_index in range(self.joint_array.rows()):
             self.joint_array[joint_index] = self.joints[self.joint_list[joint_index]]
@@ -413,6 +468,8 @@ class HelloRobot:
         curr_pose = PyKDL.Frame()
         del_pose = PyKDL.Frame()
         self.fk_p_kdl.JntToCart(self.joint_array, curr_pose)
+
+        save_data["curr_pose"] = frame_to_numpy_matrix(curr_pose)
 
         rot_matrix = R.from_euler("xyz", rotation, degrees=False).as_matrix()
 
@@ -431,14 +488,26 @@ class HelloRobot:
         self.ik_p_kdl.CartToJnt(seed_array, goal_pose_new, self.joint_array)
 
         ik_joints = {}
+        # ik_joints_save = {}
 
         for joint_index in range(self.joint_array.rows()):
             ik_joints[self.joint_list[joint_index]] = self.joint_array[joint_index]
+            # ik_joints_save[self.joint_list[joint_index]] = jntarray_to_numpy(self.joint_array[joint_index])
 
         self.move_to_joints(ik_joints, gripper)
+
+        save_data["ik_joints"] = ik_joints
 
         time.sleep(0.5)
 
         self.updateJoints()
+
+        save_data["final_joints"] = self.joints.copy()
+
+        self.all_actions.append(save_data)
+        with open("/home/enes/all_actions_rum_server_drawer_opening.pkl", "wb") as f:
+            pickle.dump(self.all_actions, f)
+        print("Saved all actions..")
+
         for joint_index in range(self.joint_array.rows()):
             self.joint_array[joint_index] = self.joints[self.joint_list[joint_index]]

@@ -25,7 +25,7 @@ from .utils import (
 )
 
 logger = logging.getLogger(__name__)
-STRETCH_GRIPPER_MAX = 150
+STRETCH_GRIPPER_MAX = 150 # 0.5 # 150
 
 
 def get_home_param(
@@ -333,7 +333,7 @@ class Controller:
             gr.Markdown(
                 """
             # Robot Evaluation Admin Tool
-            1. Try to match the robot POV to the samples we provided. Generally, you will have to update the height and the initial gripper value. 
+            1. Try to match the robot POV to the samples we provided. Generally, you will have to update the height and the initial gripper value.
             To update robot runtime params, click "Update params", then "Home" to see the values reflected.
             2. Click "Take a policy step" when you're ready for the robot to execute.
             3. Repeat 2 as necessarily until the task is complete.
@@ -370,10 +370,10 @@ class Controller:
                         step=0.01,
                         label="Gripper closing threshold",
                         info="""
-                        Once below the theshold value, gripper will close. 
-                        If your robot is closing the gripper too early, make this lower. 
-                        If your robot is closing the gripper too late, make this higher. 
-                        You can look at the gripper value box on the left to get an idea of 
+                        Once below the theshold value, gripper will close.
+                        If your robot is closing the gripper too early, make this lower.
+                        If your robot is closing the gripper too late, make this higher.
+                        You can look at the gripper value box on the left to get an idea of
                         what the ideal closing threshold should be.""",
                     )
                     gripper_open_threshold = gr.Slider(
@@ -384,11 +384,11 @@ class Controller:
                         label="Gripper opening threshold",
                         info="""
                         Once above the theshold value, gripper will open after closing.
-                        Mostly important for tasks where the gripper closes and then opens 
-                        again, like reorientation. 
-                        If your robot is opening the gripper too early, make this lower. 
-                        If your robot is opening the gripper too late, make this higher. 
-                        You can look at the gripper value box on the left to get an idea of 
+                        Mostly important for tasks where the gripper closes and then opens
+                        again, like reorientation.
+                        If your robot is opening the gripper too early, make this lower.
+                        If your robot is opening the gripper too late, make this higher.
+                        You can look at the gripper value box on the left to get an idea of
                         what the ideal closing threshold should be.""",
                     )
                     gripper = gr.Slider(

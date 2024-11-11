@@ -1,4 +1,4 @@
-project_root: /path/to/robot-utility-models/imitation-in-homes # path to the imitation-in-homes folder
+project_root: /home/enes/ws/robot-utility-models/imitation-in-homes # path to the imitation-in-homes folder
 
 data_root: 
     train: /path/to/train_dataset
