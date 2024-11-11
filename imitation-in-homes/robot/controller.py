@@ -25,7 +25,7 @@ from .utils import (
 )
 
 logger = logging.getLogger(__name__)
-STRETCH_GRIPPER_MAX = 150 # 0.5 # 150
+STRETCH_GRIPPER_MAX = 0.5 # 150
 
 
 def get_home_param(
